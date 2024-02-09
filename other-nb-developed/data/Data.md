@@ -1,0 +1,1 @@
+## Lighweight data that is used by the entire project is stored here
