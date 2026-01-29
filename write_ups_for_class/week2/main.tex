@@ -4,17 +4,18 @@
 
 \begin{document}
 
-\title{Week 2: Optimization Problems in Machine Learning}
+\title{Weeks 2 and 3: Optimization Problems in Machine Learning and Linear Regression via Gradient Descent}
 \author{Gregory Glickert}
 \maketitle
 
 \section*{Introduction}
 
-This document explores two fundamental optimization problems in machine learning:
+This document explores fundamental optimization problems in machine learning:
 
 \begin{itemize}
 \item \textbf{Formulating the Mean as an Optimization Problem}: We derive the arithmetic mean by minimizing the sum of squared errors for a set of data points.
 \item \textbf{Optimization of a Quadratic Function Using Gradient Descent}: We minimize a quadratic cost function using the gradient descent algorithm, demonstrating its convergence properties.
+\item \textbf{Linear Regression via Gradient Descent}: We optimize a linear regression model using gradient descent for a simple dataset.
 \end{itemize}
 
 \section*{Formulating the Mean as an Optimization Problem}
@@ -60,8 +61,11 @@ J(\theta)
 \subsection*{4. Compute the First Derivative}
 
 We differentiate the cost function with respect to \( \theta \):
+
+Since \( J(\theta) = 4\theta^2 - 40\theta + 120 \),
+
 \[
-\frac{dJ}{d\theta} = 8\theta - 40.
+\frac{dJ}{d\theta} = \frac{d}{d\theta} (4\theta^2 - 40\theta + 120) = 8\theta - 40.
 \]
 
 \subsection*{5. Find the Critical Point}
@@ -118,7 +122,7 @@ The function \( J(\theta) \) is a quadratic polynomial with a positive coefficie
 From the graph, we can see that the minimum occurs at \( \theta = -1 \) with \( J(-1) = 4 \). We are now going to setup and solve for these using gradient descent.
 
 \begin{center}
-\includegraphics[width=0.8\textwidth]{function_plot.png}
+\includegraphics[width=0.8\textwidth]{week2_function_plot.png}
 \end{center}
 
 \subsection*{3. Gradient Descent Solution}
@@ -126,8 +130,11 @@ From the graph, we can see that the minimum occurs at \( \theta = -1 \) with \( 
 \subsubsection*{Compute the Gradient}
 
 Differentiate the cost function with respect to \( \theta \):
+
+Since \( J(\theta) = \theta^2 + 2\theta + 5 \),
+
 \[
-\frac{dJ}{d\theta} = 2\theta + 2.
+\frac{dJ}{d\theta} = \frac{d}{d\theta} (\theta^2 + 2\theta + 5) = 2\theta + 2.
 \]
 
 \subsubsection*{Gradient Descent Update Equation}
@@ -209,7 +216,185 @@ This demonstrates that gradient descent with a sufficiently large learning rate 
 The following plot illustrates the gradient descent iterations on the cost function:
 
 \begin{center}
-\includegraphics[width=0.8\textwidth]{gd_plot.png}
+\includegraphics[width=0.8\textwidth]{week2_gd_plot.png}
+\end{center}
+
+\section*{Linear Regression via Gradient Descent}
+
+\subsection*{Introduction}
+
+This section explores linear regression optimization using gradient descent for a simple dataset of three data points.
+
+We are given the data points
+\[
+(x,y) = (1,2),\ (2,4),\ (3,6).
+\]
+
+From inspection, the output variable \( y \) is exactly twice the input variable \( x \) for all data points. Therefore, we expect the optimal linear relationship to be
+\[
+y = 2x,
+\]
+which suggests that the optimal parameter value should be \( \theta = 2 \).  
+Next we will verify this result by explicitly formulating and solving a linear regression optimization problem using gradient descent.
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{week3_data_plot.png}
+\end{center}
+
+\subsection*{1. Model Assumption}
+
+We use a linear model \emph{without an intercept}:
+\[
+h_\theta(x) = \theta x.
+\]
+No intercept term is included because the data lie exactly on a line passing through the origin (and it makes the math a bit easier for this example). For a more complex or completed problem you would be expected to include the intercept 
+
+\subsection*{2. Define the Cost Function}
+
+We use the mean squared error cost function:
+\[
+J(\theta) = \frac{1}{2m} \sum_{i=1}^{m} (h_\theta(x_i) - y_i)^2,
+\]
+where \( m = 3 \) is the number of data points.
+
+Substituting the data,
+\[
+J(\theta) = \frac{1}{6}
+\Big[
+(\theta - 2)^2
++ (2\theta - 4)^2
++ (3\theta - 6)^2
+\Big].
+\]
+
+\subsection*{3. Gradient Descent Solution}
+
+\subsubsection*{Compute the Gradient}
+
+To compute the gradient, we need to find the derivative of the cost function \( J(\theta) \) with respect to \( \theta \).
+
+The cost function is:
+\[
+J(\theta) = \frac{1}{2m} \sum_{i=1}^{m} (h_\theta(x_i) - y_i)^2,
+\]
+
+where \( h_\theta(x_i) = \theta x_i \) is our linear model.
+
+To find \(\frac{dJ}{d\theta}\), we differentiate each term in the sum using the chain rule:
+\[
+\frac{d}{d\theta} (h_\theta(x_i) - y_i)^2 = 2(h_\theta(x_i) - y_i) \cdot \frac{d}{d\theta}(\theta x_i) = 2(h_\theta(x_i) - y_i) x_i.
+\]
+
+Differentiating the entire cost function:
+\[
+\frac{dJ}{d\theta} = \frac{1}{2m} \cdot 2 \sum_{i=1}^{m} (h_\theta(x_i) - y_i) x_i = \frac{1}{m} \sum_{i=1}^{m} (h_\theta(x_i) - y_i) x_i.
+\]
+
+For our data with \( m = 3 \), this becomes
+\[
+\frac{dJ}{d\theta} = \frac{1}{3} \left[ (\theta x_1 - y_1) x_1 + (\theta x_2 - y_2) x_2 + (\theta x_3 - y_3) x_3 \right].
+\]
+
+Substituting the data,
+\[
+\frac{dJ}{d\theta}
+= \frac{1}{3}
+\left[
+(\theta \cdot 1 - 2) \cdot 1
++ (\theta \cdot 2 - 4) \cdot 2
++ (\theta \cdot 3 - 6) \cdot 3
+\right].
+\]
+
+Simplifying each term:
+
+\[
+\begin{aligned}
+(\theta - 2) \cdot 1 &= \theta - 2, \\
+(2\theta - 4) \cdot 2 &= 4\theta - 8, \\
+(3\theta - 6) \cdot 3 &= 9\theta - 18.
+\end{aligned}
+\]
+
+Summing these terms:
+
+\[
+(\theta - 2) + (4\theta - 8) + (9\theta - 18) = 14\theta - 28.
+\]
+
+Dividing by \( m = 3 \):
+\[
+\frac{dJ}{d\theta} = \frac{14\theta - 28}{3} = \frac{14}{3} \theta - \frac{28}{3} = \frac{14}{3} (\theta - 2).
+\]
+
+\subsubsection*{Gradient Descent Update Rule}
+
+The gradient descent update equation is
+\[
+\theta_{k+1} = \theta_k - \alpha \frac{dJ}{d\theta}\bigg|_{\theta=\theta_k}.
+\]
+
+Substituting the gradient expression,
+\[
+\theta_{k+1}
+= \theta_k - \alpha \frac{14}{3}(\theta_k - 2).
+\]
+
+\subsubsection*{Choose Parameters}
+
+We choose:
+\begin{itemize}
+\item Initial value: \( \theta_0 = 0 \)
+\item Learning rate: \( \alpha = 0.3 \)
+\end{itemize}
+
+\subsubsection*{Iteration 1}
+
+\[
+\theta_1
+= 0 - 0.3\left(\frac{14}{3}(0 - 2)\right)
+= 2.8.
+\]
+
+\subsubsection*{Iteration 2}
+
+\[
+\theta_2
+= 2.8 - 0.3\left(\frac{14}{3}(2.8 - 2)\right)
+= 1.68.
+\]
+
+\subsubsection*{Iteration 3}
+
+\[
+\theta_3
+= 1.68 - 0.3\left(\frac{14}{3}(1.68 - 2)\right)
+\approx 2.13.
+\]
+
+\subsection*{4. Conclusion}
+
+After three iterations of gradient descent, the parameter value is
+\[
+\theta \approx 2.13,
+\]
+which is clearly converging toward the expected optimal value
+\[
+\theta^* = 2.
+\]
+
+The resulting model,
+\[
+h(x) = 2x,
+\]
+exactly captures the linear relationship in the data, yielding zero prediction error.
+
+\subsection*{5. Visualization of Gradient Descent}
+
+The following plot illustrates the gradient descent iterations on the cost function:
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{week3_gd_plot.png}
 \end{center}
 
 \end{document}
