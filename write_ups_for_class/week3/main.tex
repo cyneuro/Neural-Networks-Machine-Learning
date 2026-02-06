@@ -329,4 +329,53 @@ We have covered the key concepts of logistic regression:
 
 Logistic regression can be viewed as a \textbf{single-layer neural network} with one neuron and a sigmoid activation. By stacking multiple layers of such units with non-linear activations, we obtain deep neural networks capable of learning complex, non-linear decision boundaries.
 
+\section*{Matrix Form of Logistic Regression}
+
+For efficiency and scalability, logistic regression is often formulated using matrix operations, allowing vectorized computations over multiple samples and features simultaneously.
+
+\subsection*{Vectorized Predictions}
+
+Consider a dataset with \(n\) samples and \(d\) features. We augment the feature matrix \(X\) (shape \((n, d)\)) with a column of ones for the bias term, resulting in \(\tilde{X}\) of shape \((n, d+1)\). The weight vector \(\mathbf{w}\) (including the bias weight) is of shape \((d+1, 1)\).
+
+The linear combination is:
+\[
+\mathbf{z} = \tilde{X} \mathbf{w},
+\]
+and the predictions are:
+\[
+\hat{\mathbf{y}} = \sigma(\mathbf{z}) = \frac{1}{1 + e^{-\mathbf{z}}},
+\]
+where \(\sigma\) is applied element-wise.
+
+\subsection*{Vectorized Loss and Gradients}
+
+The binary cross-entropy loss is:
+\[
+J(\mathbf{w}) = -\frac{1}{n} \sum_{i=1}^{n} \left[ y_i \log \hat{y}_i + (1 - y_i) \log (1 - \hat{y}_i) \right],
+\]
+which vectorizes to:
+\[
+J(\mathbf{w}) = -\frac{1}{n} \left( \mathbf{y}^T \log \hat{\mathbf{y}} + (\mathbf{1} - \mathbf{y})^T \log (\mathbf{1} - \hat{\mathbf{y}}) \right).
+\]
+
+The gradient with respect to \(\mathbf{w}\) is:
+\[
+\frac{\partial J}{\partial \mathbf{w}} = \frac{1}{n} \tilde{X}^T (\hat{\mathbf{y}} - \mathbf{y}).
+\]
+
+Gradient descent updates: \(\mathbf{w} \leftarrow \mathbf{w} - \alpha \frac{\partial J}{\partial \mathbf{w}}\).
+
+\subsection*{Extension to Neural Networks}
+
+Logistic regression is fundamentally a single-layer feedforward neural network. To build deeper networks, we stack multiple layers of affine transformations followed by non-linear activations.
+
+For a 2-layer network (1 hidden layer with \(h\) units):
+\begin{itemize}
+\item Hidden layer: \(\mathbf{Z}^{(1)} = \tilde{X} \mathbf{W}^{(1)} + \mathbf{b}^{(1)}\), \(\mathbf{A}^{(1)} = \sigma(\mathbf{Z}^{(1)})\)
+\item Output layer: \(\mathbf{Z}^{(2)} = \mathbf{A}^{(1)} \mathbf{W}^{(2)} + \mathbf{b}^{(2)}\), \(\hat{\mathbf{y}} = \sigma(\mathbf{Z}^{(2)})\)
+\end{itemize}
+where \(\mathbf{W}^{(1)}\) is \((d+1, h)\), \(\mathbf{W}^{(2)}\) is \((h, 1)\), and biases are broadcasted.
+
+Training uses backpropagation to compute gradients layer-by-layer, generalizing the logistic regression gradients. This enables learning complex, non-linear decision boundaries, with logistic regression as the simplest case (no hidden layers).
+
 \end{document}

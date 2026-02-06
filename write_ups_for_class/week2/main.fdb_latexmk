@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1769724781 "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.tex" "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.pdf" "main" 1769796849
+["pdflatex"] 1770411965 "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.tex" "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.pdf" "main" 1770411966
   "/home/gjgpb9/.texlive2018/texmf-var/web2c/pdftex/pdflatex.fmt" 1721861341 734105 4c136a9f0d479a3e186ad3548bcb0972 ""
-  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.aux" 1769724782 8 a94a2480d3289e625eea47cd1b285758 ""
+  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.aux" 1770411966 8 a94a2480d3289e625eea47cd1b285758 ""
   "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.tex" 1769724842 9740 ac82bc2054f604014841511e826b4b0f ""
   "/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map" 1505175693 2409932 f79b4f632000ddea55e8f74cd4f9d531 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1480098698 1004 54797486969f23fa377b128694d548df ""
@@ -70,15 +70,15 @@
   "/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty" 1480098836 7075 2fe3d848bba95f139de11ded085e74aa ""
   "/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty" 1480098836 22417 1d9df1eb66848aa31b18a593099cf45c ""
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1687431982 33426 b47e9bbe185cb2dc23aef33961dc9e4b ""
-  "main.aux" 1769724782 8 a94a2480d3289e625eea47cd1b285758 "pdflatex"
+  "main.aux" 1770411966 8 a94a2480d3289e625eea47cd1b285758 "pdflatex"
   "main.tex" 1769724842 9740 ac82bc2054f604014841511e826b4b0f ""
   "week2_function_plot.png" 1769724017 132730 06295692bb53b45767530b6b6e305496 ""
   "week2_gd_plot.png" 1769724018 155014 90ff33c097303146dda7ae1a8b8b8065 ""
   "week3_data_plot.png" 1769724018 26658 bf4f1943b1a1e4083500c90a0c6732a6 ""
   "week3_gd_plot.png" 1769724018 42313 26dec1b1b4a1e01224076db2bffa42ba ""
   (generated)
-  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.pdf"
-  "main.log"
   "main.aux"
+  "main.log"
   "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.log"
+  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/week2/main.pdf"
   "main.pdf"
