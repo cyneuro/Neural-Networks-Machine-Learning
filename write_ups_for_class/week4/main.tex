@@ -1,0 +1,280 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb,geometry,graphicx,booktabs}
+\geometry{margin=1in}
+
+\title{Parameter Estimation, Covariance, KL Divergence, and Softmax}
+\author{Gregory Glickert}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════════════════
+\section{Maximum Likelihood Estimation (MLE)}
+% ══════════════════════════════════════════════════════════
+
+MLE estimates distribution parameters by finding the values that
+maximize the probability of observing the data.
+For i.i.d.\ samples $x_1,\dots,x_n$ with density $f(x|\theta)$:
+\[
+  \hat{\theta} = \arg\max_\theta \; \sum_{i=1}^n \log f(x_i \mid \theta)
+\]
+Working with the log converts the product into a sum, which is
+numerically stable and analytically convenient.
+
+For a normal distribution $N(\mu,\sigma^2)$, differentiating the
+log-likelihood and setting it to zero gives closed-form estimators:
+\[
+  \hat{\mu} = \frac{1}{n}\sum_{i=1}^n x_i
+  \qquad
+  \hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n (x_i - \hat{\mu})^2
+\]
+
+\subsection*{Effect of Sample Size}
+With more data the MLE estimate converges to the true parameters.
+The three plots below show fits to samples of size $n=10$, $100$,
+and $10000$ drawn from $N(0,1)$:
+
+\begin{center}
+  \includegraphics[width=0.78\textwidth]{mle_fit_10.png}
+\end{center}
+\begin{center}
+  \includegraphics[width=0.78\textwidth]{mle_fit_100.png}
+\end{center}
+\begin{center}
+  \includegraphics[width=0.78\textwidth]{mle_fit_10000.png}
+\end{center}
+
+At $n=10$ the fit can be noticeably off; by $n=10000$ the estimated
+curve is virtually indistinguishable from the true distribution.
+
+% ══════════════════════════════════════════════════════════
+\section{Method of Moments (MoM)}
+% ══════════════════════════════════════════════════════════
+
+Method of Moments estimates parameters by equating theoretical
+moments to sample moments.  The $k$-th theoretical moment is
+$\mu_k(\theta) = \mathbb{E}[X^k]$; we solve for $\theta$ such
+that $\mu_k(\hat{\theta}) = \tfrac{1}{n}\sum x_i^k$.
+
+For a Gamma distribution $\mathrm{Gamma}(k,\theta)$ with
+mean $k\theta$ and variance $k\theta^2$, matching the first two
+moments gives:
+\[
+  \hat{\theta}_{\text{MoM}} = \frac{\hat{\sigma}^2}{\bar{x}}
+  \qquad
+  \hat{k}_{\text{MoM}} = \frac{\bar{x}^2}{\hat{\sigma}^2}
+\]
+
+\subsection*{MoM vs.\ MLE: When to Use Each}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+ & \textbf{Method of Moments} & \textbf{MLE} \\
+\midrule
+Approach    & Match sample moments to theory & Maximise likelihood of data \\
+Computation & Closed-form; very fast         & May require numerical optimisation \\
+Efficiency  & Can be less statistically efficient & Asymptotically optimal \\
+Use when    & Quick estimate; complex likelihood & Sufficient data; accuracy matters \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+The figure below compares both methods on Gamma-distributed data.
+At small $n$ they can diverge; at large $n$ both converge to the
+true distribution.
+
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{mom_vs_mle.png}
+\end{center}
+
+% ══════════════════════════════════════════════════════════
+\section{Covariance and Feature Selection}
+% ══════════════════════════════════════════════════════════
+
+Covariance measures how two features vary together:
+\[
+  \mathrm{Cov}(X,Y) = \frac{1}{n}\sum_{i=1}^n
+  (x_i - \bar{x})(y_i - \bar{y})
+\]
+Positive values mean features increase together; negative means
+they move inversely; near zero means they are uncorrelated.
+
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{covariance_examples.png}
+\end{center}
+
+\subsection*{Covariance and Correlation Matrices}
+
+For $d$ features, all pairwise covariances form a
+$d\!\times\!d$ covariance matrix $\Sigma$.
+Normalising each entry to $[-1,1]$ gives the correlation matrix:
+\[
+  \rho_{ij} = \frac{\mathrm{Cov}(X_i,X_j)}
+               {\sqrt{\mathrm{Var}(X_i)\,\mathrm{Var}(X_j)}}
+\]
+High off-diagonal values flag redundant features.
+
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{covariance_matrix.png}
+\end{center}
+
+\subsection*{Why It Matters for Machine Learning}
+\begin{itemize}
+  \item \textbf{Redundancy detection.}  Highly correlated features
+        carry overlapping information; dropping one reduces cost
+        with no information loss.
+  \item \textbf{Multicollinearity.}  Correlated features destabilise
+        linear models and inflate coefficient variance.
+  \item \textbf{Dimensionality reduction.}  PCA uses the covariance
+        matrix to find directions of maximum variance, compressing
+        $d$ features into far fewer dimensions.
+  \item \textbf{Interpretability.}  Independent features have clearer,
+        separable effects on model predictions.
+\end{itemize}
+
+\begin{center}
+  \includegraphics[width=0.88\textwidth]{covariance_feature_selection.png}
+\end{center}
+
+% ══════════════════════════════════════════════════════════
+\section{KL Divergence}
+% ══════════════════════════════════════════════════════════
+
+KL divergence quantifies how different one distribution is from
+another:
+\[
+  D_{KL}(P\|Q) = \int p(x)\log\frac{p(x)}{q(x)}\,dx
+\]
+It is \emph{not} symmetric: $D_{KL}(P\|Q)\neq D_{KL}(Q\|P)$.
+For two normals with equal variance:
+\[
+  D_{KL}\!\bigl(N(\mu_1,\sigma^2)\,\|\,N(\mu_2,\sigma^2)\bigr)
+  = \frac{(\mu_1-\mu_2)^2}{2\sigma^2}
+\]
+
+\subsection*{Applications in Machine Learning}
+\begin{itemize}
+  \item \textbf{Model selection.}  Measures how well an approximate
+        distribution fits the true one.
+  \item \textbf{Variational inference.}  Minimises KL between an
+        approximate and the true posterior.
+  \item \textbf{GANs.}  Related divergences guide generator training
+        by comparing real and generated data distributions.
+  \item \textbf{Cross-entropy loss.}  Minimising cross-entropy is
+        equivalent to minimising KL from data to model predictions.
+\end{itemize}
+
+\subsection*{Visualisation}
+As the mean difference grows, KL divergence increases quadratically.
+
+\noindent
+\begin{minipage}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{kl_dist_mu0p5.png}
+\end{minipage}\hfill
+\begin{minipage}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{kl_dist_mu1p0.png}
+\end{minipage}\hfill
+\begin{minipage}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{kl_dist_mu2p0.png}
+\end{minipage}
+
+\begin{center}
+  \includegraphics[width=0.55\textwidth]{kl_vs_diff.png}
+\end{center}
+
+% ══════════════════════════════════════════════════════════
+\section{Softmax in Neural Networks}
+% ══════════════════════════════════════════════════════════
+
+Softmax converts raw logits $z=[z_1,\dots,z_k]$ from a neural
+network into a valid probability distribution over $k$ classes:
+\[
+  \sigma(z)_i = \frac{e^{z_i}}{\sum_{j=1}^k e^{z_j}},
+  \qquad \sigma(z)_i \in [0,1],\quad \sum_i \sigma(z)_i = 1
+\]
+
+\subsection*{Sigmoid vs.\ Softmax: Output Layer Design}
+
+The key architectural difference between binary and multi-class
+networks is the output layer activation:
+
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{network_diagram.png}
+\end{center}
+
+\begin{itemize}
+  \item \textbf{Sigmoid (left).}  One output neuron;
+        $\sigma(z) = 1/(1+e^{-z})$.  The output is the
+        probability of the positive class.  Suitable only for
+        binary problems.
+  \item \textbf{Softmax (right).}  One output neuron per class;
+        outputs sum to 1.  Enables the network to assign a
+        calibrated probability to each of $k$ classes simultaneously.
+\end{itemize}
+
+Softmax is a generalisation of sigmoid: for $k=2$ the two are
+mathematically equivalent.
+
+\subsection*{Classification Pipeline}
+
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{softmax_pipeline.png}
+\end{center}
+
+Raw logits (any real number) are exponentiated and normalised by
+softmax.  The predicted class is $\hat{y} = \arg\max_i\,\sigma(z)_i$.
+
+\subsection*{Training with Cross-Entropy Loss}
+
+Softmax is paired with cross-entropy loss during training.
+Since only the true class $y_{\text{true}}$ contributes:
+\[
+  \ell = -\log\,\sigma(z)_{y_{\text{true}}}
+\]
+Loss is high when the model is wrong and shrinks as confidence in
+the correct class grows.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{softmax_cross_entropy.png}
+\end{center}
+
+\subsection*{Temperature Scaling}
+
+Dividing logits by temperature $T$ adjusts output sharpness.
+$T<1$ sharpens predictions (more confident); $T>1$ softens them
+(useful in knowledge distillation where a teacher model's
+``soft'' probabilities guide training of a smaller student model).
+
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{softmax_temperature.png}
+\end{center}
+
+% ══════════════════════════════════════════════════════════
+\section{Conclusion}
+% ══════════════════════════════════════════════════════════
+
+\begin{itemize}
+  \item \textbf{MLE} maximises data likelihood and converges to the
+        true parameters as sample size grows.
+  \item \textbf{Method of Moments} offers fast, closed-form estimates
+        by matching moments; preferred when the likelihood is
+        intractable or data is limited.
+  \item \textbf{Covariance} reveals feature relationships, guiding
+        feature selection, dimensionality reduction, and model
+        interpretability.
+  \item \textbf{KL Divergence} measures distribution differences and
+        underlies cross-entropy loss and generative model training.
+  \item \textbf{Softmax} is the standard output activation for
+        multi-class neural networks, converting logits into calibrated
+        class probabilities and enabling training via cross-entropy loss.
+\end{itemize}
+
+\end{document}
