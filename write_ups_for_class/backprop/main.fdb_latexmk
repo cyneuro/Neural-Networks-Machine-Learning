@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1772200197 "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.pdf" "main" 1772200300
+["pdflatex"] 1772200817 "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.pdf" "main" 1772201064
   "/home/gjgpb9/.texlive2018/texmf-var/web2c/pdftex/pdflatex.fmt" 1721861341 734105 4c136a9f0d479a3e186ad3548bcb0972 ""
-  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.aux" 1772200198 405 96b1a51b8fd601fee7530aeb5b06b8a4 ""
-  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" 1772200197 32034 9f4c7dbe70d702df0ca152dc4cb294f4 ""
+  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.aux" 1772200818 405 96b1a51b8fd601fee7530aeb5b06b8a4 ""
+  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" 1772201063 33773 f35241152548f3c25ecbb89c92729e57 ""
   "/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map" 1505175693 2409932 f79b4f632000ddea55e8f74cd4f9d531 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1480098698 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1480098698 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -31,6 +31,7 @@
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb" 1480098733 35469 70d41d2b9ea31d5d813066df7c99281c ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1480098733 32722 d7379af29a190c3f453aba36302ff5a9 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb" 1480098733 32362 179c33bbf43f19adbb3825bb4e36e57a ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb" 1480098733 32734 69e00a6b65cedb993666e42eedb3d48f ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb" 1480098733 32726 0a1aea6fcd6468ee2cf64d891f5c43c8 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1480098733 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb" 1480098733 32587 1788b0c1c5b39540c96f5e42ccd6dae8 ""
@@ -72,13 +73,13 @@
   "/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty" 1480098836 7075 2fe3d848bba95f139de11ded085e74aa ""
   "/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty" 1480098836 22417 1d9df1eb66848aa31b18a593099cf45c ""
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1687431982 33426 b47e9bbe185cb2dc23aef33961dc9e4b ""
-  "main.aux" 1772200198 405 96b1a51b8fd601fee7530aeb5b06b8a4 "pdflatex"
-  "main.tex" 1772200197 32034 9f4c7dbe70d702df0ca152dc4cb294f4 ""
+  "main.aux" 1772200818 405 96b1a51b8fd601fee7530aeb5b06b8a4 "pdflatex"
+  "main.tex" 1772201063 33773 f35241152548f3c25ecbb89c92729e57 ""
   "network_diagram.png" 1771342150 208412 2725820a2d18ccac6ab5f1739a499b87 ""
   "simple_network.png" 1772158753 57845 adccb1d784fdcacc85c080d694fe0793 ""
   (generated)
-  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.pdf"
-  "main.log"
-  "main.aux"
   "main.pdf"
+  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.pdf"
+  "main.aux"
+  "main.log"
   "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.log"

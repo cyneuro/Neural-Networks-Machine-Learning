@@ -637,6 +637,45 @@ Now we can compute gradients for the weights connecting hidden nodes to the outp
 \frac{\partial L}{\partial w_{h1 \to o}} = \delta_o \cdot h_1
 \]
 
+\noindent\textbf{Derivation of the Hidden-to-Output Weight Gradient}
+
+Let's break down why this formula holds, step by step:
+
+\begin{enumerate}
+    \item \textbf{Recall the structure:} The output node receives input from hidden node $h_1$ via weight $w_{h1 \to o}$. The output is $o = \sigma(z_o)$, where $z_o = h_1 w_{h1 \to o} + h_2 w_{h2 \to o}$.
+
+    \item \textbf{We want:}
+    \[
+    \frac{\partial L}{\partial w_{h1 \to o}}
+    \]
+    That is, how much does the loss change if we change the weight from $h_1$ to the output?
+
+    \item \textbf{Apply the chain rule:}
+    \[
+    \frac{\partial L}{\partial w_{h1 \to o}} = \frac{\partial L}{\partial z_o} \cdot \frac{\partial z_o}{\partial w_{h1 \to o}}
+    \]
+    Here, $z_o$ is the pre-activation at the output node.
+
+    \item \textbf{Recall:} $\delta_o = \frac{\partial L}{\partial z_o}$ (the error signal at the output node, already derived above).
+
+    \item \textbf{Compute $\frac{\partial z_o}{\partial w_{h1 \to o}}$:}
+    \[
+    z_o = h_1 w_{h1 \to o} + h_2 w_{h2 \to o}
+    \]
+    So,
+    \[
+    \frac{\partial z_o}{\partial w_{h1 \to o}} = h_1
+    \]
+
+    \item \textbf{Combine:}
+    \[
+    \frac{\partial L}{\partial w_{h1 \to o}} = \delta_o \cdot h_1
+    \]
+    This means the gradient for the weight from $h_1$ to the output is the error signal at the output node times the activation of the sending hidden node.
+\end{enumerate}
+
+\noindent\textbf{Summary:} The gradient for a weight is the error signal of the receiving node (here, the output node) times the activation of the sending node (here, $h_1$). This is a general rule in backpropagation for any weight: $\frac{\partial L}{\partial w_{\text{to} \gets \text{from}}} = \delta_{\text{to}} \cdot a_{\text{from}}$.
+
 This rule says: the gradient for a weight is the error signal of the receiving node times the activation of the sending node. Let's compute both hidden-to-output weight gradients:
 
 \noindent\textbf{Weight } $w_{h1 \to o}$:
