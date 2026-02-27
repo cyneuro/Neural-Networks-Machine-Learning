@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1772159572 "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.pdf" "main" 1772159715
+["pdflatex"] 1772160724 "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.pdf" "main" 1772160726
   "/home/gjgpb9/.texlive2018/texmf-var/web2c/pdftex/pdflatex.fmt" 1721861341 734105 4c136a9f0d479a3e186ad3548bcb0972 ""
-  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.aux" 1772159576 221 a5cb05607d4a9c4ce1b1ddffe8470d20 ""
-  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" 1772159711 30214 4029583fc2ad505e61a00966ced367b5 ""
+  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.aux" 1772160725 405 96b1a51b8fd601fee7530aeb5b06b8a4 ""
+  "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.tex" 1772160716 30413 41bbe60705eac431049ec9c7fe4666d4 ""
   "/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map" 1505175693 2409932 f79b4f632000ddea55e8f74cd4f9d531 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1480098698 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1480098698 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -72,12 +72,13 @@
   "/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty" 1480098836 7075 2fe3d848bba95f139de11ded085e74aa ""
   "/usr/share/texlive/texmf-dist/tex/latex/oberdiek/kvoptions.sty" 1480098836 22417 1d9df1eb66848aa31b18a593099cf45c ""
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1687431982 33426 b47e9bbe185cb2dc23aef33961dc9e4b ""
-  "main.aux" 1772159576 221 a5cb05607d4a9c4ce1b1ddffe8470d20 "pdflatex"
-  "main.tex" 1772159711 30214 4029583fc2ad505e61a00966ced367b5 ""
+  "main.aux" 1772160725 405 96b1a51b8fd601fee7530aeb5b06b8a4 "pdflatex"
+  "main.tex" 1772160716 30413 41bbe60705eac431049ec9c7fe4666d4 ""
+  "network_diagram.png" 1771342150 208412 2725820a2d18ccac6ab5f1739a499b87 ""
   "simple_network.png" 1772158753 57845 adccb1d784fdcacc85c080d694fe0793 ""
   (generated)
   "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.log"
-  "main.log"
   "/home/gjgpb9/Neural-Networks-Machine-Learning/write_ups_for_class/backprop/main.pdf"
+  "main.log"
   "main.aux"
   "main.pdf"
