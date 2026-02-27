@@ -175,7 +175,7 @@ The negative sign indicates that increasing $o$ would \textit{decrease} the loss
 
 \noindent\textbf{Term 2: } $\frac{\partial o}{\partial z}$ — How much does the output change with respect to the pre-activation?
 
-The output is given by the sigmoid: $o = \sigma(z) = \frac{1}{1 + e^{-z}}$. The derivative of the sigmoid is a special, elegant result. Let's derive it:
+The output is given by the sigmoid: $o = \sigma(z) = \frac{1}{1 + e^{-z}}$. Let's derive it:
 
 \begin{align*}
 \frac{\partial o}{\partial z} &= \frac{\partial}{\partial z}\left[\frac{1}{1 + e^{-z}}\right] \\
@@ -514,6 +514,55 @@ First, we compute $\delta_o$, the error signal at the output node. This represen
 \[
 \delta_o = (o - y) \cdot \sigma'(z_o)
 \]
+
+\noindent\textbf{Derivation of the Output Layer Error Signal}
+
+To understand where this equation comes from, let's break it down step by step:
+
+\begin{enumerate}
+    \item \textbf{Start with the loss function:}
+    \[
+    L = \frac{1}{2}(o - y)^2
+    \]
+    where $o$ is the output and $y$ is the target.
+
+    \item \textbf{The output $o$ is a function of the pre-activation $z_o$:}
+    \[
+    o = \sigma(z_o)
+    \]
+    where $\sigma$ is the sigmoid activation function.
+
+    \item \textbf{We want the derivative of the loss with respect to $z_o$:}
+    \[
+    \delta_o = \frac{\partial L}{\partial z_o}
+    \]
+
+    \item \textbf{Apply the chain rule:}
+    \[
+    \frac{\partial L}{\partial z_o} = \frac{\partial L}{\partial o} \cdot \frac{\partial o}{\partial z_o}
+    \]
+
+    \item \textbf{Compute each term:}
+    \begin{itemize}
+        \item $\frac{\partial L}{\partial o}$:
+        \[
+        \frac{\partial L}{\partial o} = \frac{\partial}{\partial o} \left( \frac{1}{2}(o - y)^2 \right ) = (o - y)
+        \]
+
+        \item $\frac{\partial o}{\partial z_o}$:
+        \[
+        \frac{\partial o}{\partial z_o} = \sigma'(z_o)
+        \]
+        For the sigmoid function, $\sigma'(z_o) = \sigma(z_o)(1 - \sigma(z_o)) = o(1 - o)$.
+    \end{itemize}
+
+    \item \textbf{Combine the results:}
+    \[
+    \delta_o = (o - y) \cdot \sigma'(z_o)
+    \]
+\end{enumerate}
+
+\noindent\textbf{Summary:} This equation comes from applying the chain rule to the loss function, recognizing that the output $o$ depends on the pre-activation $z_o$ via the activation function. The error signal at the output is the product of the prediction error and the sensitivity of the activation function.
 
 The term $(o - y)$ is the raw prediction error. The term $\sigma'(z_o)$ is the sigmoid derivative—it scales the raw error based on how sensitive the output is to changes in its input.
 
