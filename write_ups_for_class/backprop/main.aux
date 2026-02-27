@@ -1,9 +1,15 @@
 \relax 
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Complete Neural Network: 2 inputs $\to $ 2 hidden nodes $\to $ 1 output node}}{2}}
-\newlabel{fig:network}{{1}{2}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Sub-network for computing $h_1$}}{3}}
-\newlabel{fig:network_h1}{{2}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Sub-network for computing $h_2$}}{4}}
-\newlabel{fig:network_h2}{{3}{4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Sub-network for computing output $o$}}{4}}
-\newlabel{fig:network_output}{{4}{4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Simple 1-to-1 Neural Network: A single input $x$ is multiplied by weight $w$ to produce output $o$}}{2}}
+\newlabel{fig:simple_network}{{1}{2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Forward pass: Activations flow from inputs to hidden nodes to output. Each edge represents a weighted connection, and each node computes its activation.}}{8}}
+\newlabel{fig:network_forward}{{2}{8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Complete Neural Network: 2 inputs $\to $ 2 hidden nodes $\to $ 1 output node}}{9}}
+\newlabel{fig:network}{{3}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Subnetwork for computing $h_1$: Both inputs $x_1$ and $x_2$ connect to hidden node 1 with weights $w_{x1 \to h1}$ and $w_{x2 \to h1}$.}}{10}}
+\newlabel{fig:network_h1}{{4}{10}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Subnetwork for computing $h_2$: Both inputs $x_1$ and $x_2$ connect to hidden node 2 with weights $w_{x1 \to h2}$ and $w_{x2 \to h2}$.}}{11}}
+\newlabel{fig:network_h2}{{5}{11}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Subnetwork for computing the output $o$: Both hidden nodes $h_1$ and $h_2$ connect to the output node with weights $w_{h1 \to o}$ and $w_{h2 \to o}$.}}{12}}
+\newlabel{fig:network_output}{{6}{12}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Backward pass: Error signals (gradients) flow backward from the output to the hidden and input layers. Each edge shows the direction of gradient propagation for weight updates.}}{13}}
+\newlabel{fig:network_backward}{{7}{13}}
