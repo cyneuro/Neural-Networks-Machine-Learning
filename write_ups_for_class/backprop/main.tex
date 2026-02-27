@@ -23,28 +23,353 @@ Backpropagation is the fundamental algorithm for training neural networks. It co
 
 The key insight of backpropagation is that we can efficiently compute gradients for all weights using the chain rule, enabling us to update all weights in a single pass. This makes training deep networks feasible.
 
-\textbf{Verification}
+\section*{Simple 1-to-1 Example}
 
-All calculations in this document have been verified using Python code (see \texttt{solve\_network.py}). The numerical values presented have been computed to machine precision and rounded for display.
+To introduce the mathematical concepts clearly, we first examine the simplest possible neural network: one input node and one output node, connected by a single weight. This minimal example demonstrates all the core concepts of backpropagation without unnecessary complexity.
 
-\section*{Network Setup}
-
-We work with a simple feedforward neural network with 2 inputs, 2 hidden nodes, and 1 output node.
-\[
-x_1 = 0.35, \quad x_2 = 0.7
-\]
-
-Weights:
-\[
-w_{x1 \to h1} = 0.2, \quad w_{x2 \to h1} = 0.2, \quad w_{x1 \to h2} = 0.3, \quad w_{x2 \to h2} = 0.3
-\]
-\[
-w_{h1 \to o} = 0.3, \quad w_{h2 \to o} = 0.9
-\]
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\textwidth]{simple_network.png}
+\caption{Simple 1-to-1 Neural Network: A single input $x$ is multiplied by weight $w$ to produce output $o$}
+\label{fig:simple_network}
+\end{figure}
 
 \vspace{0.3cm}
 
-Figure \ref{fig:network} shows the complete network architecture with all weights labeled. Before examining each layer's computation below, it is helpful to visualize the full network structure.
+\noindent\textbf{Network Parameters:}
+\begin{itemize}
+    \item Input value: $x = 0.5$
+    \item Initial weight: $w = 0.8$
+    \item Target output (ground truth): $y = 0.6$
+    \item Learning rate: $\eta = 1.0$
+\end{itemize}
+
+The network uses the \textbf{sigmoid} activation function, which squashes any input into a value between 0 and 1:
+\[
+\sigma(z) = \frac{1}{1 + e^{-z}}
+\]
+
+The sigmoid function is useful because it bounds the output to a probability-like value and has a known, well-behaved derivative, which makes computing gradients tractable.
+
+\subsection*{1. Forward Pass: Computing the Prediction}
+
+In the forward pass, we push the input through the network to generate a prediction. There are two steps: first compute the weighted sum (pre-activation), then apply the activation function.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Step 1a: Weighted Sum (Pre-activation)}
+
+The pre-activation value $z$ is simply the input multiplied by the weight:
+\[
+z = x \cdot w
+\]
+
+Substituting our values:
+\[
+z = (0.5) \cdot (0.8) = 0.4
+\]
+
+This is the raw signal before activation. Since we have only one node, there is no summing of multiple inputs; if we had multiple inputs ($x_1, x_2, \ldots, x_n$), we would compute $z = x_1 w_1 + x_2 w_2 + \cdots + x_n w_n$.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Step 1b: Apply Sigmoid Activation}
+
+Now we pass $z$ through the sigmoid activation function to obtain the final output $o$:
+\[
+o = \sigma(z) = \frac{1}{1 + e^{-z}} = \frac{1}{1 + e^{-0.4}}
+\]
+
+To evaluate this, we compute:
+\begin{align*}
+e^{-0.4} &\approx 0.670320 \\
+1 + e^{-0.4} &\approx 1.670320 \\
+o = \frac{1}{1.670320} &\approx 0.598688
+\end{align*}
+
+So the network's prediction is $o \approx 0.598688$. We desired $y = 0.6$, so the prediction is very close but slightly below the target.
+
+\vspace{0.3cm}
+
+\noindent\textbf{Forward Pass Summary:}
+\[
+\boxed{x = 0.5 \xrightarrow{\times w=0.8} z = 0.4 \xrightarrow{\sigma(\cdot)} o = 0.598688}
+\]
+
+\subsection*{2. Loss Function: Quantifying the Error}
+
+To know how well our network performed, we need a loss function that measures the difference between the prediction $o$ and the target $y$. We use the \textbf{Mean Squared Error (MSE)} loss:
+
+\[
+L = \frac{1}{2}(o - y)^2
+\]
+
+The factor of $\frac{1}{2}$ is a convenient scaling choice that simplifies the derivative later. The $(o - y)^2$ term penalizes large errors quadratically, which means bigger mistakes are punished more severely.
+
+Substituting our values:
+\[
+L = \frac{1}{2}(0.598688 - 0.6)^2
+\]
+
+Let's compute the difference:
+\[
+o - y = 0.598688 - 0.6 = -0.001312
+\]
+
+Now square it:
+\[
+(o - y)^2 = (-0.001312)^2 = 0.00000172
+\]
+
+And multiply by $\frac{1}{2}$:
+\[
+L = \frac{1}{2}(0.00000172) = 0.00000086
+\]
+
+The loss is very small because our prediction was already quite close to the target. However, we will now use backpropagation to make the prediction \textit{even} closer.
+
+\subsection*{3. Backward Pass: Computing Gradients Using the Chain Rule}
+
+The backward pass is where backpropagation happens. We compute how much the loss changes with respect to each parameter, allowing us to adjust the parameters to reduce the loss.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Why Do We Need Gradients?}
+
+A gradient tells us the \textit{direction and magnitude} of the steepest ascent in the loss function. By moving in the \textit{opposite} direction of the gradient (gradient descent), we can reduce the loss. The symbol $\frac{\partial L}{\partial w}$ denotes the partial derivative of the loss with respect to the weight $w$—how much the loss changes when we change $w$ by a tiny amount.
+
+\vspace{0.2cm}
+
+\noindent\textbf{The Chain Rule}
+
+To find $\frac{\partial L}{\partial w}$, we must apply the chain rule because $w$ does not directly affect $L$; instead, $w$ affects $z$, which affects $o$, which affects $L$. The chain rule tells us to multiply the partial derivatives along this path:
+
+\[
+\frac{\partial L}{\partial w} = \frac{\partial L}{\partial o} \cdot \frac{\partial o}{\partial z} \cdot \frac{\partial z}{\partial w}
+\]
+
+This is the fundamental insight of backpropagation: we break down the complex dependency into a product of simpler derivatives.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Computing Each Term in the Chain Rule}
+
+\vspace{0.1cm}
+
+\noindent\textbf{Term 1: } $\frac{\partial L}{\partial o}$ — How much does the loss change with respect to the output?
+
+The loss function is $L = \frac{1}{2}(o - y)^2$. Taking the derivative with respect to $o$:
+
+\[
+\frac{\partial L}{\partial o} = \frac{\partial}{\partial o}\left[\frac{1}{2}(o - y)^2\right] = \frac{1}{2} \cdot 2(o - y) \cdot 1 = (o - y)
+\]
+
+The two cancels with the 2 in the chain rule, leaving us with simply the error $(o - y)$. Substituting:
+\[
+\frac{\partial L}{\partial o} = 0.598688 - 0.6 = -0.001312
+\]
+
+The negative sign indicates that increasing $o$ would \textit{decrease} the loss (since $o$ is currently too low).
+
+\vspace{0.1cm}
+
+\noindent\textbf{Term 2: } $\frac{\partial o}{\partial z}$ — How much does the output change with respect to the pre-activation?
+
+The output is given by the sigmoid: $o = \sigma(z) = \frac{1}{1 + e^{-z}}$. The derivative of the sigmoid is a special, elegant result. Let's derive it:
+
+\begin{align*}
+\frac{\partial o}{\partial z} &= \frac{\partial}{\partial z}\left[\frac{1}{1 + e^{-z}}\right] \\
+&= -\frac{1}{(1 + e^{-z})^2} \cdot (-e^{-z}) \quad \text{(by chain rule)} \\
+&= \frac{e^{-z}}{(1 + e^{-z})^2}
+\end{align*}
+
+This can be rewritten in a more useful form. Note that:
+\[
+\frac{e^{-z}}{(1 + e^{-z})^2} = \frac{1}{1 + e^{-z}} \cdot \frac{e^{-z}}{1 + e^{-z}} = \sigma(z) \cdot (1 - \sigma(z)) = o(1 - o)
+\]
+
+This is a famous result: \textbf{the derivative of sigmoid is $\sigma'(z) = \sigma(z)(1 - \sigma(z))$}. At the value we care about:
+\[
+\sigma'(z) = o(1 - o) = (0.598688)(1 - 0.598688) = (0.598688)(0.401312) = 0.240260
+\]
+
+The small value (0.24) reflects that the sigmoid is close to saturation where the input ($z = 0.4$) is not too far from zero. The sigmoid is steepest near $z = 0$ and becomes flatter as $|z|$ increases.
+
+\vspace{0.1cm}
+
+\noindent\textbf{Term 3: } $\frac{\partial z}{\partial w}$ — How much does the pre-activation change with respect to the weight?
+
+Since $z = x \cdot w$ and $x$ is a constant input:
+\[
+\frac{\partial z}{\partial w} = \frac{\partial}{\partial w}[x \cdot w] = x = 0.5
+\]
+
+This makes intuitive sense: the contribution of a weight to the pre-activation is exactly the input value.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Putting It All Together: The Full Gradient}
+
+Now we multiply all three terms:
+\begin{align*}
+\frac{\partial L}{\partial w} &= \frac{\partial L}{\partial o} \cdot \frac{\partial o}{\partial z} \cdot \frac{\partial z}{\partial w} \\
+&= (-0.001312) \cdot (0.240260) \cdot (0.5) \\
+&= (-0.001312) \cdot (0.120130) \\
+&= -0.000158
+\end{align*}
+
+The gradient is negative, which tells us that \textit{increasing} $w$ will \textit{decrease} the loss. This makes sense because the output $o$ is slightly too low (0.598688 < 0.6), and increasing the weight would increase the output.
+
+\subsection*{4. Weight Update: Gradient Descent}
+
+Now that we have the gradient, we update the weight using the gradient descent rule:
+
+\[
+w_{\text{new}} = w_{\text{old}} - \eta \cdot \frac{\partial L}{\partial w}
+\]
+
+where $\eta$ is the \textbf{learning rate}, a hyperparameter that controls the step size. With $\eta = 1.0$:
+
+\begin{align*}
+w_{\text{new}} &= 0.8 - (1.0) \cdot (-0.000158) \\
+&= 0.8 + 0.000158 \\
+&= 0.800158
+\end{align*}
+
+Notice the double negative: since the gradient is negative (indicating that increasing $w$ helps), we subtract a negative number, effectively adding to $w$. The weight increased from $0.8$ to $0.800158$.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Intuition Behind the Update Rule}
+
+\begin{itemize}
+    \item If the gradient $\frac{\partial L}{\partial w}$ is \textit{positive}, we \textit{decrease} the weight (move against the gradient).
+    \item If the gradient is \textit{negative}, we \textit{increase} the weight (move against the gradient).
+    \item The \textit{magnitude} of the gradient determines how large a step we take.
+    \item The learning rate $\eta$ scales all updates; a larger $\eta$ means bigger steps, while a smaller $\eta$ means more cautious steps.
+\end{itemize}
+
+\subsection*{5. Second Forward Pass: Demonstrating Error Reduction}
+
+Now we perform a forward pass using the updated weight $w_{\text{new}} = 0.800158$ to see if the loss decreased.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Step 1: Compute Pre-activation}
+
+\[
+z_{\text{new}} = x \cdot w_{\text{new}} = 0.5 \times 0.800158 = 0.400079
+\]
+
+The pre-activation increased slightly from $z = 0.4$ to $z_{\text{new}} = 0.400079$.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Step 2: Apply Sigmoid Activation}
+
+\[
+o_{\text{new}} = \sigma(0.400079) = \frac{1}{1 + e^{-0.400079}}
+\]
+
+Computing:
+\begin{align*}
+e^{-0.400079} &\approx 0.670264 \\
+1 + e^{-0.400079} &\approx 1.670264 \\
+o_{\text{new}} = \frac{1}{1.670264} &\approx 0.598707
+\end{align*}
+
+The output increased from $o = 0.598688$ to $o_{\text{new}} = 0.598707$, moving closer to the target $y = 0.6$.
+
+\vspace{0.2cm}
+
+\noindent\textbf{Step 3: Compute New Loss}
+
+\[
+L_{\text{new}} = \frac{1}{2}(o_{\text{new}} - y)^2 = \frac{1}{2}(0.598707 - 0.6)^2
+\]
+
+The new error:
+\[
+o_{\text{new}} - y = 0.598707 - 0.6 = -0.001293
+\]
+
+The new loss:
+\[
+L_{\text{new}} = \frac{1}{2}(-0.001293)^2 = \frac{1}{2}(0.00000167) = 0.00000084
+\]
+
+\subsection*{5.1 Error Comparison: Progress Toward the Target}
+
+Let's compare the two forward passes side by side:
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+    & \textbf{Before Update} & \textbf{After Update} & \textbf{Change} \\
+\hline
+Weight               & $0.8$ & $0.800158$ & $+0.000158$ \\
+Pre-activation $z$   & $0.4$ & $0.400079$ & $+0.000079$ \\
+Output $o$           & $0.598688$ & $0.598707$ & $+0.000019$ \\
+Error $(o - y)$      & $-0.001312$ & $-0.001293$ & $+0.000019$ \\
+Absolute Error       & $0.001312$ & $0.001293$ & $-0.000019$ \\
+Loss                 & $0.00000086$ & $0.00000084$ & $-0.00000002$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+
+\noindent\textbf{Observations:}
+
+\begin{itemize}
+    \item The output $o$ moved from $0.598688$ to $0.598707$, \textit{getting closer} to the target $y = 0.6$.
+    \item The absolute error $|o - y|$ decreased from $0.001312$ to $0.001293$, a reduction of $\frac{0.000019}{0.001312} \times 100\% \approx 1.44\%$.
+    \item The loss decreased from $0.00000086$ to $0.00000084$, confirming that our weight update moved us in the right direction.
+    \item Even though each individual change seems tiny (output increased by only $0.000019$), this is the essence of gradient descent: many small, carefully-guided steps accumulate into significant learning.
+    \item The weight update was proportional to how much that weight contributed to the error, as captured by the gradient. This is why backpropagation is so powerful—it automatically computes how much each parameter should change.
+\end{itemize}
+
+\vspace{0.2cm}
+
+\noindent\textbf{Key Insight:}
+
+By using backpropagation to compute the gradient and updating the weight in the opposite direction, we successfully reduced the loss. If we were to repeat this process many times (many iterations), the output would converge to the target value. This simple 1-to-1 example contains all the essential machinery of deep neural network training: forward propagation of inputs, computation of loss, backward propagation of error signals via the chain rule, and parameter updates via gradient descent.
+
+\section*{More Complex Example: 2-to-2-to-1 Network}
+
+Now that we understand the fundamentals with a simple 1-to-1 network, let's apply the same principles to a more realistic architecture: a network with 2 input nodes, 2 hidden nodes, and 1 output node. This example demonstrates how backpropagation scales to networks with multiple layers and nodes, and shows how error signals propagate backward through the network using the chain rule.
+
+\subsection*{Complex Network Setup}
+
+Our network processes information in layers:
+\begin{itemize}
+    \item \textbf{Input Layer:} 2 nodes receiving values $x_1$ and $x_2$
+    \item \textbf{Hidden Layer:} 2 nodes ($h_1$ and $h_2$) that combine the inputs in different ways
+    \item \textbf{Output Layer:} 1 node producing the final prediction $o$
+\end{itemize}
+
+\noindent\textbf{Network Parameters:}
+\begin{align*}
+\text{Inputs:} \quad &x_1 = 0.35, \quad x_2 = 0.7 \\
+\text{Target:} \quad &y = 0.5 \\
+\text{Learning rate:} \quad &\eta = 1.0
+\end{align*}
+
+\noindent\textbf{Initial Weights:}
+
+Input-to-Hidden connections:
+\begin{align*}
+w_{x1 \to h1} &= 0.2 \quad \text{(connects input 1 to hidden node 1)} \\
+w_{x2 \to h1} &= 0.2 \quad \text{(connects input 2 to hidden node 1)} \\
+w_{x1 \to h2} &= 0.3 \quad \text{(connects input 1 to hidden node 2)} \\
+w_{x2 \to h2} &= 0.3 \quad \text{(connects input 2 to hidden node 2)}
+\end{align*}
+
+Hidden-to-Output connections:
+\begin{align*}
+w_{h1 \to o} &= 0.3 \quad \text{(connects hidden node 1 to output)} \\
+w_{h2 \to o} &= 0.9 \quad \text{(connects hidden node 2 to output)}
+\end{align*}
 
 \begin{figure}[h]
 \centering
@@ -53,251 +378,399 @@ Figure \ref{fig:network} shows the complete network architecture with all weight
 \label{fig:network}
 \end{figure}
 
-\vspace{0.3cm}
+The network diagram appears in Figure \ref{fig:network}. All nodes use the sigmoid activation function $\sigma(z) = \frac{1}{1 + e^{-z}}$ with derivative $\sigma'(z) = \sigma(z)(1 - \sigma(z))$. No biases are used.
 
-Target output: \( y = 0.5 \)
+\section*{Forward Pass: Computing the Prediction}
 
-All neurons use the sigmoid activation function:
+In the forward pass, we compute the activation of each node from left to right, layer by layer. For each node, we compute a weighted sum (pre-activation) and then apply sigmoid activation.
+
+\subsection*{Step 1: Input Layer}
+
+The input values are given:
 \[
-\sigma(z) = \frac{1}{1 + e^{-z}}\]
-
-Sigmoid derivative (needed for backpropagation):
-\[
-\sigma'(z) = \sigma(z) (1 - \sigma(z))
+x_1 = 0.35, \quad x_2 = 0.7
 \]
 
-No biases are used in this network.
+\subsection*{Step 2a: Hidden Node 1 Pre-activation}
 
-\section*{Forward Pass}
-
-The forward pass computes the activation of each node by propagating inputs through the network, layer by layer. For each node, we first compute a weighted sum of its inputs (the pre-activation $z$), then apply the sigmoid activation function to produce the node's output.
-
-\subsection*{Compute Hidden Nodes}
-
-\textbf{Hidden Node 1 ($h_1$):}
-
-We compute the pre-activation sum for the first hidden node as a weighted sum of the inputs:
+The first hidden node combines both inputs with its weights:
 \[
 z_{h1} = x_1 w_{x1 \to h1} + x_2 w_{x2 \to h1}
 \]
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.55\textwidth]{network_h1.png}
-\caption{Sub-network for computing $h_1$}
-\label{fig:network_h1}
-\end{figure}
-
-Substituting the input values and weights:
+Substituting values:
 \[
 z_{h1} = (0.35)(0.2) + (0.7)(0.2) = 0.07 + 0.14 = 0.21
 \]
 
-Apply the sigmoid activation function:
+This weighted sum $z_{h1} = 0.21$ is the pre-activation value. It represents the combined signal from both inputs, with each input's contribution weighted by its respective connection strength.
+
+\subsection*{Step 2b: Hidden Node 1 Activation}
+
+Now we apply the sigmoid function:
 \[
-h_1 = \sigma(0.21) = \frac{1}{1 + e^{-0.21}} = 0.552308
+h_1 = \sigma(z_{h1}) = \sigma(0.21) = \frac{1}{1 + e^{-0.21}}
 \]
 
-\textbf{Hidden Node 2 ($h_2$):}
+Computing:
+\begin{align*}
+e^{-0.21} &\approx 0.810584 \\
+1 + e^{-0.21} &\approx 1.810584 \\
+h_1 = \frac{1}{1.810584} &\approx 0.552308
+\end{align*}
 
-We apply the same computation for the second hidden node.
+So the first hidden node outputs $h_1 \approx 0.552308$.
 
-Pre-activation sum:
+\subsection*{Step 3a: Hidden Node 2 Pre-activation}
+
+Similarly, the second hidden node combines both inputs (with different weights):
 \[
-z_{h2} = x_1 w_{x1 \to h2} + x_2 w_{x2 \to h2} = (0.35)(0.3) + (0.7)(0.3) = 0.315
+z_{h2} = x_1 w_{x1 \to h2} + x_2 w_{x2 \to h2} = (0.35)(0.3) + (0.7)(0.3) = 0.105 + 0.21 = 0.315
 \]
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.55\textwidth]{network_h2.png}
-\caption{Sub-network for computing $h_2$}
-\label{fig:network_h2}
-\end{figure}
+\subsection*{Step 3b: Hidden Node 2 Activation}
 
-Apply sigmoid:
 \[
-h_2 = \sigma(0.315) = 0.578105
+h_2 = \sigma(0.315) = \frac{1}{1 + e^{-0.315}}
 \]
 
-\subsection*{Compute Output Node}
+Computing:
+\begin{align*}
+e^{-0.315} &\approx 0.729688 \\
+1 + e^{-0.315} &\approx 1.729688 \\
+h_2 = \frac{1}{1.729688} &\approx 0.578105
+\end{align*}
 
-We compute the final output layer using the same approach: weighted sum followed by sigmoid activation.
+So the second hidden node outputs $h_2 \approx 0.578105$.
 
-Pre-activation:
+\vspace{0.3cm}
+
+\noindent\textbf{Observation:} The hidden layer performs a non-linear transformation of the inputs. Even though the inputs are simple (0.35 and 0.7), the hidden nodes have learned different combinations of them, with $h_1 \approx 0.552$ and $h_2 \approx 0.578$. If we had used a linear activation instead of sigmoid, we couldn't have learned non-linear patterns.
+
+\subsection*{Step 4a: Output Node Pre-activation}
+
+The output node takes the activations from both hidden nodes as its inputs:
 \[
 z_o = h_1 w_{h1 \to o} + h_2 w_{h2 \to o}
 \]
 
 Substituting values:
 \[
-z_o = (0.552308)(0.3) + (0.578105)(0.9) = 0.165692 + 0.520295 = 0.685987
+z_o = (0.552308)(0.3) + (0.578105)(0.9)
 \]
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.55\textwidth]{network_output.png}
-\caption{Sub-network for computing output $o$}
-\label{fig:network_output}
-\end{figure}
+Computing each term:
+\begin{align*}
+h_1 w_{h1 \to o} &= (0.552308)(0.3) = 0.165692 \\
+h_2 w_{h2 \to o} &= (0.578105)(0.9) = 0.520295 \\
+z_o &= 0.165692 + 0.520295 = 0.685987
+\end{align*}
 
-Apply sigmoid:
+Notice that the second hidden node ($h_2$) contributes more to the output pre-activation (0.520295 vs 0.165692) because its weight ($0.9$) is much larger than $h_1$'s weight ($0.3$).
+
+\subsection*{Step 4b: Output Node Activation}
+
 \[
-o = \sigma(0.685987) = 0.665074
+o = \sigma(z_o) = \sigma(0.685987) = \frac{1}{1 + e^{-0.685987}}
 \]
 
-\textbf{Forward Pass Summary:} The network predicts $o = 0.665074$, but our target is $y = 0.5$. The error is $0.665074 - 0.5 = 0.165074$ (positive, meaning output is too high). We will now perform the backward pass to compute how to update weights to reduce this error.
+Computing:
+\begin{align*}
+e^{-0.685987} &\approx 0.503690 \\
+1 + e^{-0.685987} &\approx 1.503690 \\
+o = \frac{1}{1.503690} &\approx 0.665074
+\end{align*}
 
-\section*{Backward Pass}
+\vspace{0.3cm}
 
-In the backward pass, we compute how much each weight contributed to the error and adjust the weights to reduce that error. We use the chain rule to propagate error signals backward through the network.
+\noindent\textbf{Forward Pass Complete:} The network predicts $o = 0.665074$, but the target is $y = 0.5$. The prediction is too high by $0.665074 - 0.5 = 0.165074$. This is our error signal that we'll use in the backward pass to update the weights.
 
-\subsection*{Output Layer Error}
+\section*{Computing the Loss}
 
-First, we compute the error at the output node. For \textbf{Mean Squared Error (MSE) loss}, we need to include the sigmoid derivative in the delta:
+We use MSE loss to quantify the overall error:
+\[
+L = \frac{1}{2}(o - y)^2 = \frac{1}{2}(0.665074 - 0.5)^2
+\]
+
+Computing:
+\begin{align*}
+o - y &= 0.665074 - 0.5 = 0.165074 \\
+(o - y)^2 &= (0.165074)^2 = 0.027249 \\
+L &= \frac{1}{2}(0.027249) = 0.013625
+\end{align*}
+
+The loss is 0.013625, which quantifies how far our prediction is from the target. Our goal is to reduce this through backpropagation and weight updates.
+
+\section*{Backward Pass: Computing Gradients}
+
+In the backward pass, we compute how much each weight contributed to the error and how much each weight should change to reduce that error. We start at the output and work backward to the input, using the chain rule at each step.
+
+The key insight is that because neural networks are composed functions, we can use the chain rule to efficiently compute gradients for all weights. We compute error signals ($\delta$ values) that flow backward through the network.
+
+\subsection*{Step 1: Output Layer Error Signal}
+
+First, we compute $\delta_o$, the error signal at the output node. This represents how much the loss would change if we changed the pre-activation $z_o$:
+
 \[
 \delta_o = (o - y) \cdot \sigma'(z_o)
 \]
 
-The sigmoid derivative is:
+The term $(o - y)$ is the raw prediction error. The term $\sigma'(z_o)$ is the sigmoid derivative—it scales the raw error based on how sensitive the output is to changes in its input.
+
+Let's compute the sigmoid derivative at the output:
 \[
 \sigma'(z_o) = o(1 - o) = (0.665074)(1 - 0.665074) = (0.665074)(0.334926) = 0.222774
 \]
 
-Thus:
+Now the output delta:
 \[
 \delta_o = (0.665074 - 0.5) \cdot 0.222774 = (0.165074) \cdot (0.222774) = 0.036770
 \]
 
-This value is smaller than if we had used the raw error, which is appropriate because the sigmoid function saturates (its derivative is smaller in magnitude) when the pre-activation is away from zero.
+This smaller value (0.036770 vs the raw error 0.165074) reflects that the sigmoid function is less steep at $z_o = 0.685987$. When the sigmoid is saturation regions (very positive or negative inputs), its derivative is small, which naturally reduces the magnitude of gradient updates.
 
-\subsection*{Sigmoid Derivatives}
+\subsection*{Step 2: Sigmoid Derivatives at Hidden Nodes}
 
-To backpropagate errors to the hidden layer, we need the derivatives of the sigmoid function at each hidden node's pre-activation. Recall that the sigmoid derivative is:
+To propagate error signals backward through the hidden layer, we need the sigmoid derivatives at both hidden nodes:
 \[
-\sigma'(z) = \sigma(z)(1 - \sigma(z))
+\sigma'(z_{h1}) = h_1(1 - h_1) = (0.552308)(1 - 0.552308) = (0.552308)(0.447692) = 0.247264
 \]
 
-For $h_1$:
 \[
-\sigma'(z_{h1}) = h_1 (1 - h_1) = (0.552308)(1 - 0.552308) = (0.552308)(0.447692) = 0.247264
+\sigma'(z_{h2}) = h_2(1 - h_2) = (0.578105)(1 - 0.578105) = (0.578105)(0.421895) = 0.243900
 \]
 
-For $h_2$:
-\[
-\sigma'(z_{h2}) = h_2 (1 - h_2) = (0.578105)(0.421895) = 0.243900
-\]
+These derivatives tell us how sensitive each hidden node's output is to changes in its pre-activation. Both are around 0.24, indicating that the hidden nodes are operating in the steep region of the sigmoid where changes to pre-activations have noticeable effects on outputs.
 
-These derivatives measure how sensitive each hidden node's output is to changes in its pre-activation input.
+\subsection*{Step 3: Hidden Layer Error Signals}
 
-\subsection*{Hidden Layer Deltas}
+Now we propagate the output error signal back to the hidden layer using the chain rule. Each hidden node receives an error signal proportional to:
+\begin{enumerate}
+    \item The output error signal $\delta_o$
+    \item Its weight connecting to the output (how much this hidden node influences the output)
+    \item Its sigmoid derivative (how sensitive this hidden node is to input changes)
+\end{enumerate}
 
-Now we propagate the output error back to the hidden layer using the chain rule. The delta at each hidden node is the output error multiplied by the weight connecting it to the output, multiplied by the sigmoid derivative:
-
-\textbf{Hidden Node 1:}
+\noindent\textbf{Hidden Node 1 Error Signal:}
 \[
 \delta_{h1} = \delta_o \cdot w_{h1 \to o} \cdot \sigma'(z_{h1})
 \]
+
+Substituting:
 \[
-\delta_{h1} = (0.165074)(0.3)(0.247264) = 0.012245
+\delta_{h1} = (0.036770) \cdot (0.3) \cdot (0.247264) = 0.002728
 \]
 
-\textbf{Hidden Node 2:}
+Let me break this down step-by-step:
+\begin{align*}
+\delta_o \cdot w_{h1 \to o} &= (0.036770) \cdot (0.3) = 0.011031 \quad \text{(error signal scaled by weight)} \\
+(0.011031) \cdot \sigma'(z_{h1}) &= (0.011031) \cdot (0.247264) = 0.002728 \quad \text{(final error signal)}
+\end{align*}
+
+\noindent\textbf{Hidden Node 2 Error Signal:}
 \[
-\delta_{h2} = \delta_o \cdot w_{h2 \to o} \cdot \sigma'(z_{h2}) = (0.165074)(0.9)(0.243900) = 0.036235
-\]
-
-Notice that $h_2$ has a larger error signal than $h_1$ because it has a larger weight ($0.9$ vs $0.3$) connecting to the output.
-
-\subsection*{Weight Updates}
-
-Now that we have error signals at each layer, we can update the weights using gradient descent. The weight update rule is:
-\[
-\Delta w = \eta \cdot \delta \cdot \text{input}
-\]
-\[
-w_{\text{new}} = w_{\text{old}} - \Delta w
-\]
-
-where $\eta$ is the learning rate, $\delta$ is the error signal of the receiving neuron, and the input is the activation of the sending neuron. We \textbf{subtract} the update because we move opposite to the direction of the gradient to minimize the loss.
-
-\textbf{Input-to-Hidden Weights:}
-
-\[
-\Delta w_{x1 \to h1} = \eta \cdot \delta_{h1} \cdot x_1 = (1.0)(0.002728)(0.35) = 0.000955
-\]
-New weight: $w_{x1 \to h1} = 0.2 - 0.000955 = 0.199045$
-
-\[
-\Delta w_{x2 \to h1} = (1.0)(0.002728)(0.7) = 0.001909
-\]
-New weight: $w_{x2 \to h1} = 0.2 - 0.001909 = 0.198091$
-
-\[
-\Delta w_{x1 \to h2} = (1.0)(0.008071)(0.35) = 0.002825
-\]
-New weight: $w_{x1 \to h2} = 0.3 - 0.002825 = 0.297175$
-
-\[
-\Delta w_{x2 \to h2} = (1.0)(0.008071)(0.7) = 0.005650
-\]
-New weight: $w_{x2 \to h2} = 0.3 - 0.005650 = 0.294350$
-
-\textbf{Hidden-to-Output Weights:}
-
-\[
-\Delta w_{h1 \to o} = \eta \cdot \delta_o \cdot h_1 = (1.0)(0.036770)(0.552308) = 0.020309
-\]
-New weight: $w_{h1 \to o} = 0.3 - 0.020309 = 0.279691$
-
-\[
-\Delta w_{h2 \to o} = (1.0)(0.036770)(0.578105) = 0.021257
-\]
-New weight: $w_{h2 \to o} = 0.9 - 0.021257 = 0.878743$
-
-All weights have been decreased (since all deltas are positive and we subtract), which makes sense because the output was too high and we need to make it smaller.
-
-\section*{Second Forward Pass: Demonstrating Error Reduction}
-
-Now let's see if our weight updates actually reduced the error! We perform another forward pass using the updated weights.
-
-\subsection*{Compute Hidden Nodes (Updated Weights)}
-
-\[
-z_{h1} = x_1 w_{x1 \to h1} + x_2 w_{x2 \to h1} = (0.35)(0.199045) + (0.7)(0.198091) = 0.208329
-\]
-\[
-h_1 = \sigma(0.208329) = 0.551895
+\delta_{h2} = \delta_o \cdot w_{h2 \to o} \cdot \sigma'(z_{h2})
 \]
 
 \[
-z_{h2} = (0.35)(0.297175) + (0.7)(0.294350) = 0.310056
+\delta_{h2} = (0.036770) \cdot (0.9) \cdot (0.243900) = 0.008071
 \]
+
+\vspace{0.2cm}
+
+\noindent\textbf{Important Observation:} Notice that $\delta_{h2} = 0.008071$ is nearly 3 times larger than $\delta_{h1} = 0.002728$. Why? Because $h_2$ has a larger weight connecting to the output ($w_{h2 \to o} = 0.9$ vs $w_{h1 \to o} = 0.3$), meaning $h_2$ has more influence over the output error. The hidden node with more responsibility for the error gets a larger error signal, which ensures it will be updated more aggressively.
+
+\subsection*{Step 4: Gradient for Hidden-to-Output Weights}
+
+Now we can compute gradients for the weights connecting hidden nodes to the output. Using the chain rule:
+
 \[
-h_2 = \sigma(0.310056) = 0.576899
+\frac{\partial L}{\partial w_{h1 \to o}} = \delta_o \cdot h_1
 \]
 
-\subsection*{Compute Output Node (Updated Weights)}
+This rule says: the gradient for a weight is the error signal of the receiving node times the activation of the sending node. Let's compute both hidden-to-output weight gradients:
+
+\noindent\textbf{Weight } $w_{h1 \to o}$:
+\[
+\frac{\partial L}{\partial w_{h1 \to o}} = \delta_o \cdot h_1 = (0.036770) \cdot (0.552308) = 0.020309
+\]
+
+\noindent\textbf{Weight } $w_{h2 \to o}$:
+\[
+\frac{\partial L}{\partial w_{h2 \to o}} = \delta_o \cdot h_2 = (0.036770) \cdot (0.578105) = 0.021257
+\]
+
+Both gradients are positive, meaning increasing these weights would increase the loss. Since the output was too high (0.665074 > 0.5), decreasing these weights is the right action.
+
+\subsection*{Step 5: Gradients for Input-to-Hidden Weights}
+
+For the weights connecting inputs to hidden nodes, we use the hidden layer error signals:
 
 \[
-z_o = h_1 w_{h1 \to o} + h_2 w_{h2 \to o} = (0.551895)(0.279691) + (0.576899)(0.878743) = 0.661306
+\frac{\partial L}{\partial w_{x1 \to h1}} = \delta_{h1} \cdot x_1 = (0.002728) \cdot (0.35) = 0.000955
 \]
+
 \[
-o = \sigma(0.661306) = 0.659554
+\frac{\partial L}{\partial w_{x2 \to h1}} = \delta_{h1} \cdot x_2 = (0.002728) \cdot (0.7) = 0.001909
 \]
 
-\subsection*{Error Comparison}
+\[
+\frac{\partial L}{\partial w_{x1 \to h2}} = \delta_{h2} \cdot x_1 = (0.008071) \cdot (0.35) = 0.002825
+\]
 
-Let's compare the performance before and after the weight update:
+\[
+\frac{\partial L}{\partial w_{x2 \to h2}} = \delta_{h2} \cdot x_2 = (0.008071) \cdot (0.7) = 0.005650
+\]
 
+Notice that:
 \begin{itemize}
-\item \textbf{Before weight update:} Output $o = 0.665074$, Error $= |0.665074 - 0.5| = 0.165074$
-\item \textbf{After weight update:} Output $o = 0.659554$, Error $= |0.659554 - 0.5| = 0.159554$
-\item \textbf{Error reduction:} $0.165074 - 0.159554 = 0.005520$ 
-\item \textbf{Percent improvement:} $\frac{0.005520}{0.165074} \times 100\% = 3.34\%$
+    \item Weights connected to $h_2$ have larger gradients (0.002825 and 0.005650) because $h_2$ has a larger error signal
+    \item The second input $x_2 = 0.7$ produces larger gradient updates than $x_1 = 0.35$ because the input is larger
+    \item This automatic scaling ensures that stronger connections and more important nodes get updated more
 \end{itemize}
 
-The error has decreased! Although the improvement is modest for a single iteration with learning rate $\eta = 1.0$, this demonstrates the fundamental principle of backpropagation: \textbf{we can compute gradients that reliably point toward reducing the error}. By repeating this process many times (multiple epochs) with smaller learning rates, we can progressively reduce the error and train the network to make accurate predictions.
+\subsection*{Step 6: Weight Updates Using Gradient Descent}
 
-This is the power of backpropagation---it automatically discovers how to adjust each weight to reduce the error, using the chain rule to efficiently compute gradients for all parameters.
+Now we update all weights using the gradient descent rule with learning rate $\eta = 1.0$:
+\[
+w_{\text{new}} = w_{\text{old}} - \eta \cdot \frac{\partial L}{\partial w}
+\]
+
+\noindent\textbf{Input-to-Hidden Weights:}
+
+\begin{align*}
+w_{x1 \to h1} &: \quad 0.2 - (1.0)(0.000955) = 0.199045 \\
+w_{x2 \to h1} &: \quad 0.2 - (1.0)(0.001909) = 0.198091 \\
+w_{x1 \to h2} &: \quad 0.3 - (1.0)(0.002825) = 0.297175 \\
+w_{x2 \to h2} &: \quad 0.3 - (1.0)(0.005650) = 0.294350
+\end{align*}
+
+\noindent\textbf{Hidden-to-Output Weights:}
+
+\begin{align*}
+w_{h1 \to o} &: \quad 0.3 - (1.0)(0.020309) = 0.279691 \\
+w_{h2 \to o} &: \quad 0.9 - (1.0)(0.021257) = 0.878743
+\end{align*}
+
+All weights decreased because all gradients are positive (meaning the output was too high). By decreasing the weights, we reduce the magnitude of signals flowing through the network, which will make the next prediction smaller and closer to the target.
+
+\section*{Second Forward Pass: Verification of Error Reduction}
+
+Now we perform another forward pass using the updated weights to verify that our weight updates actually reduced the loss.
+
+\subsection*{Updated Weights Summary}
+
+\begin{align*}
+w_{x1 \to h1} &= 0.199045, \quad w_{x2 \to h1} = 0.198091 \\
+w_{x1 \to h2} &= 0.297175, \quad w_{x2 \to h2} = 0.294350 \\
+w_{h1 \to o} &= 0.279691, \quad w_{h2 \to o} = 0.878743
+\end{align*}
+
+\subsection*{Hidden Layer with Updated Weights}
+
+\noindent\textbf{Hidden Node 1:}
+
+\[
+z_{h1}^{\text{new}} = (0.35)(0.199045) + (0.7)(0.198091) = 0.069666 + 0.138664 = 0.208329
+\]
+
+\[
+h_1^{\text{new}} = \sigma(0.208329) = 0.551895
+\]
+
+The pre-activation decreased slightly from 0.21 to 0.208329, and the hidden activation decreased from 0.552308 to 0.551895.
+
+\noindent\textbf{Hidden Node 2:}
+
+\[
+z_{h2}^{\text{new}} = (0.35)(0.297175) + (0.7)(0.294350) = 0.104011 + 0.206045 = 0.310056
+\]
+
+\[
+h_2^{\text{new}} = \sigma(0.310056) = 0.576899
+\]
+
+The pre-activation decreased from 0.315 to 0.310056, and the hidden activation decreased from 0.578105 to 0.576899.
+
+\subsection*{Output Layer with Updated Weights}
+
+\[
+z_o^{\text{new}} = (0.551895)(0.279691) + (0.576899)(0.878743)
+\]
+
+Computing each term:
+\begin{align*}
+h_1^{\text{new}} w_{h1 \to o}^{\text{new}} &= (0.551895)(0.279691) = 0.154284 \\
+h_2^{\text{new}} w_{h2 \to o}^{\text{new}} &= (0.576899)(0.878743) = 0.507022 \\
+z_o^{\text{new}} &= 0.154284 + 0.507022 = 0.661306
+\end{align*}
+
+\[
+o^{\text{new}} = \sigma(0.661306) = 0.659554
+\]
+
+\subsection*{Loss Computation}
+
+The new loss is:
+\[
+L_{\text{new}} = \frac{1}{2}(o^{\text{new}} - y)^2 = \frac{1}{2}(0.659554 - 0.5)^2
+\]
+
+Computing:
+\begin{align*}
+o^{\text{new}} - y &= 0.659554 - 0.5 = 0.159554 \\
+(o^{\text{new}} - y)^2 &= (0.159554)^2 = 0.025457 \\
+L_{\text{new}} &= \frac{1}{2}(0.025457) = 0.012729
+\end{align*}
+
+\subsection*{Error Reduction Analysis}
+
+Let's compare the two forward passes:
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{Before Update} & \textbf{After Update} & \textbf{Improvement} \\
+\hline
+Output $o$ & $0.665074$ & $0.659554$ & Closer to target \\
+Error $|o - y|$ & $0.165074$ & $0.159554$ & $-0.005520$ \\
+Percent Error Reduction & --- & --- & $3.34\%$ \\
+Loss $L$ & $0.013625$ & $0.012729$ & $-0.000896$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.3cm}
+
+\noindent\textbf{Key Results:}
+
+\begin{itemize}
+    \item \textbf{Output decreased:} $o$ went from 0.665074 to 0.659554, moving toward the target $y = 0.5$
+    \item \textbf{Absolute error reduced:} $|o - y|$ decreased from 0.165074 to 0.159554, an improvement of $\frac{0.005520}{0.165074} \times 100\% = 3.34\%$
+    \item \textbf{Loss decreased:} From 0.013625 to 0.012729, confirming we moved in the correct direction
+    \item \textbf{Every weight contributed:} Each of the 6 weights was updated in the right direction, demonstrating that backpropagation correctly computed all gradients
+\end{itemize}
+
+\noindent\textbf{The Power of Backpropagation:}
+
+In a single backward pass, we computed gradients for all 6 weights, accounting for how each weight influenced the final output through multiple layers. This is what makes backpropagation so powerful:
+
+\begin{itemize}
+    \item \textbf{Scalability:} The algorithm scales to networks with many layers and weights. Each gradient computation uses the chain rule to efficiently traverse the dependency graph.
+    \item \textbf{Correctness:} All gradients correctly reflect how much each parameter contributed to the error.
+    \item \textbf{Automatic:} We didn't have to manually think about how each weight affected the output; the chain rule automatically captures these dependencies.
+\end{itemize}
+
+By repeating this forward-backward cycle many times (training for multiple epochs) with smaller learning rates, we would progressively reduce the loss until the network's predictions converge to the target values. This is the foundation of training all modern deep neural networks.
+
+\section*{Verification}
+
+All calculations in both the simple 1-to-1 example and the complex 2-to-2-to-1 example have been verified using Python code:
+\begin{itemize}
+    \item \texttt{solve\_simple\_network.py} — Verifies all numerical calculations for the 1-to-1 example
+    \item \texttt{solve\_network.py} — Verifies all numerical calculations for the 2-to-2-to-1 example
+\end{itemize}
+
+The Python scripts compute all forward activations, loss, sigmoid derivatives, error deltas, weight gradients, and weight updates to machine precision. All numerical values displayed in this document have been rounded to 6 decimal places for readability, but are derived from exact floating-point calculations.
 
 \end{document}
