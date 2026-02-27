@@ -336,6 +336,12 @@ Loss                 & $0.00000086$ & $0.00000084$ & $-0.00000002$ \\
 By using backpropagation to compute the gradient and updating the weight in the opposite direction, we successfully reduced the loss. If we were to repeat this process many times (many iterations), the output would converge to the target value. This simple 1-to-1 example contains all the essential machinery of deep neural network training: forward propagation of inputs, computation of loss, backward propagation of error signals via the chain rule, and parameter updates via gradient descent.
 
 \section*{More Complex Example: 2-to-2-to-1 Network}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{network_forward.png}
+\caption{Forward pass: Activations flow from inputs to hidden nodes to output. Each edge represents a weighted connection, and each node computes its activation.}
+\label{fig:network_forward}
+\end{figure}
 
 Now that we understand the fundamentals with a simple 1-to-1 network, let's apply the same principles to a more realistic architecture: a network with 2 input nodes, 2 hidden nodes, and 1 output node. This example demonstrates how backpropagation scales to networks with multiple layers and nodes, and shows how error signals propagate backward through the network using the chain rule.
 
@@ -421,6 +427,13 @@ h_1 = \frac{1}{1.810584} &\approx 0.552308
 
 So the first hidden node outputs $h_1 \approx 0.552308$.
 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{network_h1.png}
+\caption{Subnetwork for computing $h_1$: Both inputs $x_1$ and $x_2$ connect to hidden node 1 with weights $w_{x1 \to h1}$ and $w_{x2 \to h1}$.}
+\label{fig:network_h1}
+\end{figure}
 \subsection*{Step 3a: Hidden Node 2 Pre-activation}
 
 Similarly, the second hidden node combines both inputs (with different weights):
@@ -443,6 +456,13 @@ h_2 = \frac{1}{1.729688} &\approx 0.578105
 
 So the second hidden node outputs $h_2 \approx 0.578105$.
 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{network_h2.png}
+\caption{Subnetwork for computing $h_2$: Both inputs $x_1$ and $x_2$ connect to hidden node 2 with weights $w_{x1 \to h2}$ and $w_{x2 \to h2}$.}
+\label{fig:network_h2}
+\end{figure}
 \vspace{0.3cm}
 
 \noindent\textbf{Observation:} The hidden layer performs a non-linear transformation of the inputs. Even though the inputs are simple (0.35 and 0.7), the hidden nodes have learned different combinations of them, with $h_1 \approx 0.552$ and $h_2 \approx 0.578$. If we had used a linear activation instead of sigmoid, we couldn't have learned non-linear patterns.
@@ -481,6 +501,13 @@ e^{-0.685987} &\approx 0.503690 \\
 o = \frac{1}{1.503690} &\approx 0.665074
 \end{align*}
 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{network_output.png}
+\caption{Subnetwork for computing the output $o$: Both hidden nodes $h_1$ and $h_2$ connect to the output node with weights $w_{h1 \to o}$ and $w_{h2 \to o}$.}
+\label{fig:network_output}
+\end{figure}
 \vspace{0.3cm}
 
 \noindent\textbf{Forward Pass Complete:} The network predicts $o = 0.665074$, but the target is $y = 0.5$. The prediction is too high by $0.665074 - 0.5 = 0.165074$. This is our error signal that we'll use in the backward pass to update the weights.
@@ -502,6 +529,12 @@ L &= \frac{1}{2}(0.027249) = 0.013625
 The loss is 0.013625, which quantifies how far our prediction is from the target. Our goal is to reduce this through backpropagation and weight updates.
 
 \section*{Backward Pass: Computing Gradients}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{network_backward.png}
+\caption{Backward pass: Error signals (gradients) flow backward from the output to the hidden and input layers. Each edge shows the direction of gradient propagation for weight updates.}
+\label{fig:network_backward}
+\end{figure}
 
 In the backward pass, we compute how much each weight contributed to the error and how much each weight should change to reduce that error. We start at the output and work backward to the input, using the chain rule at each step.
 
